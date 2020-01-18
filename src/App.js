@@ -26,7 +26,9 @@ function Square({touched, mine, value, onClick}) {
 class Board extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {grid: this.createBoard(props.size, 0.2)}
+    let grid = this.createBoard(props.size, 0.2);
+    let safeSpaces = grid.reduce((size, row) => size + row.filter(cell => !cell.mine).length)
+    this.state = {size: props.size, grid: this.createBoard(props.size, 0.2), safeSpaces: safeSpaces}
     this.InBounds = this.InBounds.bind(this);
   }
 
@@ -97,12 +99,21 @@ class Board extends React.Component {
     return grid;
   }
 
+  remainingCells(grid){
+    return grid.reduce((cells, row) => cells + row.filter(cell => !cell.mine && cell.touched).length)
+  }
+
+
   handleClick(r, c){
     let grid  = this.state.grid;
     let cell = grid[r][c];
 
     if (cell.mine){
       alert("Dead");
+      debugger;
+      let newGrid = this.createBoard(this.state.size, 0.2);
+      let safeSpaces = newGrid.reduce((size, row) => size + row.filter(x => !x.mine).length);
+      this.setState({grid: newGrid, safeSpaces: safeSpaces});
       return;
     }
 
@@ -116,6 +127,10 @@ class Board extends React.Component {
       grid[r][c].touched = true;
     });
 
+    if (this.remainingCells(grid) === 0){
+      alert("Congratulations!");
+    }
+    console.log("")
     this.setState({grid:grid})
   }
 
@@ -138,6 +153,7 @@ function App() {
       <h1>Mine Sweeper</h1>
       <div id="Board">
       <Board size={10}></Board>
+      <a href="https://github.com/TCooper1996/MineSweeper/" id="info">github</a>
       </div>
     </div>
   );
