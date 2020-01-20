@@ -19,14 +19,16 @@ body {
 }
 
 
-h1 {
-  background-color: rgb(0, 0, 0);
-  border-radius: 6%;
-  font-family: 'Open Sans';
-  font-size: calc(10px + 2vmin);
-  color: #ffffff;
-  margin-bottom: 8px;
+
+h1{
+    background-color: rgb(0, 0, 0);
+    border-radius: 6%;
+    margin-bottom: 8px;
+    color: #FFFFFF;
+    font-family: 'Open Sans';
+    font-size: 30px;
 }
+
 
 .tile{
   vertical-align: top;

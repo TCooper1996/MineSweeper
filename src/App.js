@@ -24,18 +24,19 @@ let colors = {
     8: "#ff0000"
 }
 
+
 function Square({ touched, flagged, mine, value, onClick, onContextMenu }) {
     let textColor = colors[value];
     let text = touched ? value : "";
     let textWeight = value > 3 ? "bold" : "normal"
 
-    if (flagged){
-        return <img className="tile tileImg" src={flag} alt="This tile has been flagged as a mine" onContextMenu={onContextMenu}/>
-    }else{
+    if (flagged) {
+        return <img className="tile tileImg" src={flag} alt="This tile has been flagged as a mine" onContextMenu={onContextMenu} />
+    } else {
         let classes = ""
-        if (touched){
+        if (touched) {
             classes = mine ? "mine" : "touched"
-        }else{
+        } else {
             classes = "untouched"
         }
         return <button className={`tile tileBtn ${classes}`} onContextMenu={onContextMenu} style={{ color: textColor, fontWeight: textWeight }} onClick={onClick} disabled={touched}>{text}</button>
@@ -46,17 +47,21 @@ function Square({ touched, flagged, mine, value, onClick, onContextMenu }) {
 class Board extends React.Component {
     constructor(props) {
         super(props);
-        let grid = this.createBoard(props.size, 0.2);
+        this.mineChance = props.mineChance;
+        this.size = props.size;
+        let grid = this.createBoard(props.size, props.mineChance);
         let safeSpaces = grid.reduce((size, row) => size + row.filter(cell => !cell.mine).length)
-        this.state = {flash: false, lives: 2,  size: props.size, grid: this.createBoard(props.size, 0.2), safeSpaces: safeSpaces }
+        this.state = { flash: false, lives: 2, grid: this.createBoard(props.size, props.mineChance), safeSpaces: safeSpaces }
         this.resetBoard = this.resetBoard.bind(this);
+
+
     }
 
-    onGameEnd(){
+    onGameEnd() {
         let grid = this.state.grid;
         grid
-        .map(row => row.map(cell => {cell.touched = true; return cell}));
-        this.setState({grid:grid})
+            .map(row => row.map(cell => { cell.touched = true; return cell }));
+        this.setState({ grid: grid })
         setTimeout(this.resetBoard, 3000);
 
     }
@@ -126,15 +131,14 @@ class Board extends React.Component {
     }
 
     remainingCells(grid) {
-        return grid.reduce((cells, row) => cells + row.filter(cell => !cell.mine && cell.touched).length)
+        return grid.reduce((cells, row) => cells + row.filter(cell => !cell.mine && !cell.touched).length, 0)
     }
 
-    handleRightClick(r, c, e){
+    handleRightClick(r, c, e) {
         e.preventDefault();
         let grid = this.state.grid;
         grid[r][c].flagged = !grid[r][c].flagged;
-        this.setState({grid:grid})
-        console.log("right click");
+        this.setState({ grid: grid })
     }
 
 
@@ -143,12 +147,12 @@ class Board extends React.Component {
         let cell = grid[r][c];
 
         if (cell.mine) {
-            if (this.state.lives === 0){
+            if (this.state.lives === 0) {
                 this.onGameEnd();
                 return;
-            }else{
-                this.setState(function(prevState, _){
-                    return {lives: prevState.lives - 1}
+            } else {
+                this.setState(function (prevState, _) {
+                    return { lives: prevState.lives - 1 }
                 })
             }
         }
@@ -163,17 +167,18 @@ class Board extends React.Component {
             const [r, c] = element;
             grid[r][c].touched = true;
         });
-
         if (this.remainingCells(grid) === 0) {
             alert("Congratulations!");
+            this.resetBoard();
+            return;
         }
-        this.setState({ grid: grid, flash: cell.mine})
+        this.setState({ grid: grid, flash: cell.mine })
     }
 
-    resetBoard(){
-        let newGrid = this.createBoard(this.state.size, 0.2);
+    resetBoard() {
+        let newGrid = this.createBoard(this.size, this.mineChance);
         let safeSpaces = newGrid.reduce((size, row) => size + row.filter(x => !x.mine).length);
-        this.setState({ grid: newGrid, safeSpaces: safeSpaces, flash: false, lives:2});
+        this.setState({ grid: newGrid, safeSpaces: safeSpaces, flash: false, lives: 2 });
     }
 
     render() {
@@ -182,20 +187,21 @@ class Board extends React.Component {
         let statusText = livesImg[this.state.lives][1];
         let flash = this.state.flash;
 
-        return(
+        return (
             <div>{
-                grid.map((row, rIndex) =>{
-                return ( 
-                    <div key={rIndex}>
-                        {row.map((item, cIndex) =>
-                            <Square flagged={grid[rIndex][cIndex].flagged} onContextMenu={(e) => this.handleRightClick(rIndex, cIndex, e)} onClick={() => this.handleClick(rIndex, cIndex)} key={cIndex} mine={item.mine} touched={item.touched} value={item.minedNeighbors}></Square>
-                        )}
-                    </div>)}
+                grid.map((row, rIndex) => {
+                    return (
+                        <div key={rIndex}>
+                            {row.map((item, cIndex) =>
+                                <Square flagged={grid[rIndex][cIndex].flagged} onContextMenu={(e) => this.handleRightClick(rIndex, cIndex, e)} onClick={() => this.handleClick(rIndex, cIndex)} key={cIndex} mine={item.mine} touched={item.touched} value={item.minedNeighbors}></Square>
+                            )}
+                        </div>)
+                }
                 )}
-                <img id={flash ? 'statusFlashing': 'statusStatic'} onAnimationEnd={() => this.setState({flash:false})} src={statusIcon} alt={statusText}/>
+                <img id={flash ? 'statusFlashing' : 'statusStatic'} onAnimationEnd={() => this.setState({ flash: false })} src={statusIcon} alt={statusText} />
             </div>
         )
-                
+
     }
 }
 
@@ -203,10 +209,10 @@ function App() {
     return (
         <div id="App">
             <h1>Mine Sweeper</h1>
-            <a href="https://github.com/TCooper1996/MineSweeper/" id="info">github</a>
             <div id="Board">
-                <Board size={10}></Board>
+                <Board mineChance={0.3} size={10}></Board>
             </div>
+            <a href="https://github.com/TCooper1996/MineSweeper/">github</a>
         </div>
     );
 }
