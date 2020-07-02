@@ -2,12 +2,9 @@
 
 A simple implementation of Minesweeper using React.
 
-To run:
-Make sure npm is installed:
-```sudo install npm
 
-Install dependencies.
-```npm install
-
-Run
-```npm start
+To run, make sure npm is installed, then install dependencies and run.
+```
+sudo install npm
+npm install
+npm start
