@@ -1,6 +1,7 @@
 # Minesweeper
 
 A simple implementation of Minesweeper using React.
+
 [Image of minesweeper during runtime](https://github.com/TCooper1996/MineSweeper/blob/master/minesweeper.png)
 
 ## View Live
